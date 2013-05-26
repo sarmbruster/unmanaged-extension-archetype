@@ -13,20 +13,30 @@ ext {
 }
   
 dependencies {
+
+    // neo4j core dependencies
     compile group: 'org.neo4j', name: 'neo4j-kernel', version: neo4jVersion
     compile group: 'org.neo4j', name: 'neo4j-cypher', version: neo4jVersion
     compile group: 'org.neo4j', name: 'neo4j-lucene-index', version: neo4jVersion
     compile group: 'org.neo4j', name: 'server-api', version: neo4jVersion             
-    //compile group: 'net.sf.opencsv', name:'opencsv', version: '2.3'
-    //compile group: 'commons-io', name:'commons-io', version: '2.4'
-    //compile 'joda-time:joda-time:2.1'
+    compile group: 'org.neo4j.app', name: 'neo4j-server', version: neo4jVersion             
+
+    // spock dependencies
+    compile "org.codehaus.groovy:groovy-all:2.0.8"
     testCompile group: 'org.spockframework', name: 'spock-core', version: '0.7-groovy-2.0'
-    testCompile group: 'junit', name: 'junit', version: '4.10'
+
+    // neo4j test infrastructure
     testCompile group: 'org.neo4j', name: 'neo4j-kernel', version: neo4jVersion, classifier: 'tests'
-    compile group: 'org.neo4j.app', name: 'neo4j-server', version: neo4jVersion, classifier: 'tests'
     testCompile group: 'org.neo4j.app', name: 'neo4j-server', version: neo4jVersion
+    testCompile group: 'org.neo4j.app', name: 'neo4j-server', version: neo4jVersion, classifier: 'tests'
     testCompile group: 'com.sun.jersey', name: 'jersey-core', version: jerseyVersion
     testCompile group: 'com.sun.jersey', name: 'jersey-client', version: jerseyVersion
+
+    // add your dependencies here
+    compile group: 'net.sf.opencsv', name:'opencsv', version: '2.3'
+    compile group: 'commons-io', name:'commons-io', version: '2.4'
+    compile 'joda-time:joda-time:2.1'
+
 }
 
 task wrapper(type: Wrapper) {
