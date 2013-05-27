@@ -39,7 +39,7 @@ class SampleUserExtensionSpec extends Neo4jSpecification {
         then:
         result.size() == 2
         result.collect {it.username}.containsAll("Stefan", "Thomas")
-        result.collect {it.id}.containsAll(stefanNode.id, thomasNode.id)
+//        result.collect {it.id}.containsAll(stefanNode.id, thomasNode.id)
 
     }
 

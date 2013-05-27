@@ -3,12 +3,16 @@ package org.neo4j.sample.unmanaged;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.IndexHits;
+import org.neo4j.sample.domain.User;
 import org.neo4j.server.database.CypherExecutor;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import java.util.*;
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * sample for Neo4j unmanaged extensions
@@ -25,17 +29,15 @@ public class SampleUserExtension {
     protected CypherExecutor cypherExecutor;
 
     @GET
-    public List<Map<String, Object>> getUsernames() {
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<User> getUsernames() {
 
         IndexHits<Node> indexResult = graphDatabaseService.index().forNodes("users").query("username:*");
 
-        List<Map<String, Object>> result = new ArrayList<>(indexResult.size());
+        List<User> result = new ArrayList<User>(indexResult.size());
 
         for (Node userNode: indexResult) {
-            Map<String, Object> nodeMap = new HashMap<>(2);
-            nodeMap.put("username", userNode.getProperty("username", "<N/A>"));
-            nodeMap.put("id", userNode.getId());
-            result.add(nodeMap);
+            result.add(new User((String)userNode.getProperty("username")));
         }
         return result;
     }
