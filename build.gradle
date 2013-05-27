@@ -31,6 +31,7 @@ dependencies {
     testCompile group: 'org.neo4j.app', name: 'neo4j-server', version: neo4jVersion, classifier: 'tests'
     testCompile group: 'com.sun.jersey', name: 'jersey-core', version: jerseyVersion
     testCompile group: 'com.sun.jersey', name: 'jersey-client', version: jerseyVersion
+    testCompile group: 'com.sun.jersey', name: 'jersey-json', version: jerseyVersion
 
     // add your dependencies here
     compile group: 'net.sf.opencsv', name:'opencsv', version: '2.3'
