@@ -24,6 +24,7 @@ dependencies {
     // spock dependencies
     compile "org.codehaus.groovy:groovy-all:2.0.8"
     testCompile group: 'org.spockframework', name: 'spock-core', version: '0.7-groovy-2.0'
+    testCompile 'com.github.goldin:spock-extensions:0.1.4'
 
     // neo4j test infrastructure
     testCompile group: 'org.neo4j', name: 'neo4j-kernel', version: neo4jVersion, classifier: 'tests'

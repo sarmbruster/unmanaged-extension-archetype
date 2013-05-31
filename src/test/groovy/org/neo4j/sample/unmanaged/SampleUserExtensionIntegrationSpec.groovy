@@ -14,17 +14,20 @@ import spock.lang.Shared
  */
 class SampleUserExtensionIntegrationSpec extends Neo4jServerSpecification {
 
-    @Shared
     Index<Node> userIndex
-
-    //String MOUNTPOINT = "/db"
 
     @Override
     Map<String, String> jaxRsPackagesAndMountpoints() {
         ["org.neo4j.sample.unmanaged": "/db", ]
     }
 
-    def setupSpec() {
+    @Override
+    String getBasePath( )
+    {
+        "/db"
+    }
+
+    def setup() {
         userIndex = graphDatabaseService.index().forNodes("users")
     }
 
