@@ -4,11 +4,12 @@ apply plugin: "idea"
 apply plugin: "eclipse"
 
 repositories {
+    maven {url "https://raw.github.com/neo4j-contrib/m2/master/releases" }
     mavenCentral()
 }
 
 ext {
-    neo4jVersion = "1.9"
+    neo4jVersion = "2.0.1"
     jerseyVersion = "1.9"
 }
   
@@ -22,8 +23,9 @@ dependencies {
     compile group: 'org.neo4j.app', name: 'neo4j-server', version: neo4jVersion             
 
     // spock dependencies
-    compile "org.codehaus.groovy:groovy-all:2.0.8"
+    compile "org.codehaus.groovy:groovy-all:2.2.1"
     testCompile group: 'org.spockframework', name: 'spock-core', version: '0.7-groovy-2.0'
+    testCompile group: 'org.neo4j.contrib', name: 'neo4j-spock-extension', version: '0.2'
     testCompile 'com.github.goldin:spock-extensions:0.1.4'
 
     // neo4j test infrastructure
@@ -39,8 +41,4 @@ dependencies {
     compile group: 'commons-io', name:'commons-io', version: '2.4'
     compile 'joda-time:joda-time:2.1'
 
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.6'
 }

@@ -1,42 +1,48 @@
 package org.neo4j.sample.unmanaged
 
+import org.junit.ClassRule
+import org.neo4j.extension.spock.Neo4jServerResource
 import org.neo4j.graphdb.Node
 import org.neo4j.graphdb.index.Index
-import org.neo4j.test.Neo4jServerSpecification
-import org.neo4j.test.Neo4jSpecification
-import spock.lang.Ignore
 import spock.lang.Shared
+import spock.lang.Specification
 
 /**
  * short example for a unit test using http://www.spockframework.org
  *
  * N.B. this spawns an ImpermanentGraphDatabase
  */
-class SampleUserExtensionIntegrationSpec extends Neo4jServerSpecification {
+class SampleUserExtensionIntegrationSpec extends Specification {
+
+    @ClassRule
+    @Shared
+    Neo4jServerResource neo4j = new Neo4jServerResource(
+        thirdPartyJaxRsPackages: ["org.neo4j.sample.unmanaged": "/db"]
+    )
 
     Index<Node> userIndex
 
-    @Override
-    Map<String, String> jaxRsPackagesAndMountpoints() {
-        ["org.neo4j.sample.unmanaged": "/db", ]
-    }
-
-    @Override
-    String getBasePath( )
-    {
-        "/db"
-    }
-
     def setup() {
-        userIndex = graphDatabaseService.index().forNodes("users")
+        neo4j.withTransaction {
+            userIndex = neo4j.graphDatabaseService.index().forNodes("users")
+        }
+    }
+
+    def "should trivial test work"() {
+        when:
+        def response = neo4j.http.GET("db/user/test")
+
+        then:
+        response.status()==200
+        response.entity=="test"
     }
 
     def "should return empty collection for empty database"() {
         when:
-        def response = request.get("user")
+        def response = neo4j.http.GET("db/user")
 
         then:
-        response.status==200
+        response.status()==200
         response.entity=="null"
     }
 
@@ -47,17 +53,17 @@ class SampleUserExtensionIntegrationSpec extends Neo4jServerSpecification {
         def thomasNode = createUser("Thomas")
 
         when:
-        def response = request.get("user")
+        def response = neo4j.http.GET("db/user")
 
         then:
-        response.status==200
+        response.status()==200
         response.entity=='{"user":[{"username":"Stefan"},{"username":"Thomas"}]}'
 
     }
 
     Node createUser(String userName) {
-        withTransaction {
-            Node node = graphDatabaseService.createNode()
+        neo4j.withTransaction {
+            Node node = neo4j.graphDatabaseService.createNode()
             node.setProperty("username", userName)
             userIndex.add(node, "username", node.getProperty("username"))
             node

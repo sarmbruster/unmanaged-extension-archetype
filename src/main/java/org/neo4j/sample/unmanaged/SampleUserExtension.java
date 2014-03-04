@@ -2,6 +2,8 @@ package org.neo4j.sample.unmanaged;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.sample.domain.User;
 import org.neo4j.server.database.CypherExecutor;
@@ -20,7 +22,8 @@ import java.util.List;
  * provides a REST interface for maintaining users.
  */
 @Path("/user")
-public class SampleUserExtension {
+public class SampleUserExtension
+{
 
     @Context
     protected GraphDatabaseService graphDatabaseService;
@@ -29,17 +32,39 @@ public class SampleUserExtension {
     protected CypherExecutor cypherExecutor;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<User> getUsernames() {
+    @Path("/test")
+    @Produces("text/plain")
+    public long doTest()
+    {
 
-        IndexHits<Node> indexResult = graphDatabaseService.index().forNodes("users").query("username:*");
+        try (Transaction tx = graphDatabaseService.beginTx())
+        {
+            Index<Node> index = graphDatabaseService.index().forNodes( "users" );
 
-        List<User> result = new ArrayList<User>(indexResult.size());
-
-        for (Node userNode: indexResult) {
-            result.add(new User((String)userNode.getProperty("username")));
+            Node node = graphDatabaseService.createNode();
+            String userName = "123";
+            node.setProperty( "username", userName );
+            index.add( node, "username", node.getProperty( "username" ) );
+            tx.success();
+            return node.getId();
         }
-        return result;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<User> getUsernames()
+    {
+        try (Transaction tx = graphDatabaseService.beginTx()) {
+            IndexHits<Node> indexResult = graphDatabaseService.index().forNodes( "users" ).query( "username:*" );
+
+            List<User> result = new ArrayList<User>( indexResult.size() );
+
+            for ( Node userNode : indexResult )
+            {
+                result.add( new User( (String) userNode.getProperty( "username" ) ) );
+            }
+            return result;
+        }
     }
 
     /**
@@ -47,7 +72,8 @@ public class SampleUserExtension {
      *
      * @param graphDatabaseService
      */
-    public void setGraphDatabaseService(GraphDatabaseService graphDatabaseService) {
+    public void setGraphDatabaseService( GraphDatabaseService graphDatabaseService )
+    {
         this.graphDatabaseService = graphDatabaseService;
     }
 
@@ -56,7 +82,8 @@ public class SampleUserExtension {
      *
      * @param cypherExecutor
      */
-    public void setCypherExecutor(CypherExecutor cypherExecutor) {
+    public void setCypherExecutor( CypherExecutor cypherExecutor )
+    {
         this.cypherExecutor = cypherExecutor;
     }
 }
