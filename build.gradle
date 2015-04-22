@@ -1,44 +1,60 @@
 apply plugin: "java"
 apply plugin: "groovy"
-apply plugin: "idea"
-apply plugin: "eclipse"
+
+sourceCompatibility=JavaVersion.VERSION_1_7
+targetCompatibility=JavaVersion.VERSION_1_7
 
 repositories {
-    maven {url "https://raw.github.com/neo4j-contrib/m2/master/releases" }
+//    mavenLocal()
+
     mavenCentral()
+    //maven { url "http://m2.neo4j.org/content/repositories/releases/" }
+    maven {url "https://raw.github.com/neo4j-contrib/m2/master/releases" }
+}
+
+configurations {
+    fat {
+        description = "fatjar"
+        transitive = true
+    }
 }
 
 ext {
-    neo4jVersion = "2.0.1"
-    jerseyVersion = "1.9"
+    neo4jVersion = "2.2.1"
+    jerseyVersion = "1.18.1"
+    luceneVersion = "3.6.2" // NB: make sure to use the same version shipping with Neo4j
 }
-  
+
 dependencies {
+    testCompile "org.codehaus.groovy:groovy-all:2.4.1"
+    compile "org.neo4j:neo4j-kernel:$neo4jVersion"
+    //compile "org.neo4j:neo4j-csv:$neo4jVersion"
+    compile "org.neo4j:server-api:$neo4jVersion"
+    compile "org.neo4j:neo4j-cypher:$neo4jVersion"
+    compile "org.neo4j.app:neo4j-server:$neo4jVersion"
+//    compile "org.apache.lucene:lucene-queries:$luceneVersion"
 
-    // neo4j core dependencies
-    compile group: 'org.neo4j', name: 'neo4j-kernel', version: neo4jVersion
-    compile group: 'org.neo4j', name: 'neo4j-cypher', version: neo4jVersion
-    compile group: 'org.neo4j', name: 'neo4j-lucene-index', version: neo4jVersion
-    compile group: 'org.neo4j', name: 'server-api', version: neo4jVersion             
-    compile group: 'org.neo4j.app', name: 'neo4j-server', version: neo4jVersion             
+    testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
+    testCompile "org.neo4j.contrib:neo4j-spock-extension:0.5.2"
 
-    // spock dependencies
-    compile "org.codehaus.groovy:groovy-all:2.2.1"
-    testCompile group: 'org.spockframework', name: 'spock-core', version: '0.7-groovy-2.0'
-    testCompile group: 'org.neo4j.contrib', name: 'neo4j-spock-extension', version: '0.2'
-    testCompile 'com.github.goldin:spock-extensions:0.1.4'
+    runtime 'org.glassfish.jersey.media:jersey-media-json-jackson:2.13'
 
-    // neo4j test infrastructure
-    testCompile group: 'org.neo4j', name: 'neo4j-kernel', version: neo4jVersion, classifier: 'tests'
-    testCompile group: 'org.neo4j.app', name: 'neo4j-server', version: neo4jVersion
-    testCompile group: 'org.neo4j.app', name: 'neo4j-server', version: neo4jVersion, classifier: 'tests'
-    testCompile group: 'com.sun.jersey', name: 'jersey-core', version: jerseyVersion
-    testCompile group: 'com.sun.jersey', name: 'jersey-client', version: jerseyVersion
-    testCompile group: 'com.sun.jersey', name: 'jersey-json', version: jerseyVersion
-
-    // add your dependencies here
-    compile group: 'net.sf.opencsv', name:'opencsv', version: '2.3'
-    compile group: 'commons-io', name:'commons-io', version: '2.4'
-    compile 'joda-time:joda-time:2.1'
-
+    fat 'org.glassfish.jersey.media:jersey-media-json-jackson:2.13'
+//    fat "org.apache.lucene:lucene-queries:$luceneVersion"
 }
+
+
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from {
+           configurations.fat.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}
+
+//test {
+//    maxHeapSize = "12g"
+//    minHeapSize = "12g"
+//    jvmArgs "-XX:MaxPermSize=256m"
+//}
+
